@@ -43,16 +43,43 @@
 # Then write a Python function `lcs(s, t)` that returns a string with a longest common subsequence, using the LCS matrix returned by the previous function.
 
 # %%
+import numpy as np
+
 def lcs_matrix(s, t):
     """
     """
-    pass
+    matrix = np.zeros((len(t) + 1, len(s)+1))
+
+    for fil in range(1, len(t)+1):
+        for col in range(1, len(s)+1):
+            if t[fil - 1] != s[col - 1]:
+                if matrix[fil-1,col] > matrix[fil,col - 1]:
+                    matrix[fil, col] = matrix[fil-1,col]
+                else:
+                    matrix[fil, col] = matrix[fil,col-1]
+            else:
+                matrix[fil,col]=matrix[fil-1, col-1] + 1
+    return matrix
 
 
 def lcs(s, t):
     """
     """
-    pass
+    matrix = lcs_matrix(s, t)
+    fil = len(t)
+    col = len(s)
+    lcstring = ""
+    while col >= 0 and fil >= 0:
+        if matrix[fil,col] == matrix[fil-1, col]:
+            fil -= 1
+        elif matrix[fil,col] == matrix[fil, col-1]:
+            col -= 1
+        else:
+            lcstring += s[col-1]
+            fil -= 1
+            col -= 1
+    return lcstring[::-1]
+
 
 for s, t in zip(['bananas', 'biscuit', 'confidential'], ['bahamas', 'suitcase', 'trascendental']):
     lc_str = lcs(s, t)
