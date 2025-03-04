@@ -110,21 +110,22 @@ for s, t in zip(['bananas', 'biscuit', 'confidential'], ['bahamas', 'suitcase', 
 def pascal_row(k):
     """
     """
-    i = [1]
-    for row_number in range(1, k+1):
-        j =[0]*row_number
-        position = 0
-        
-        while position < row_number:
-            if position == 0 or position == row_number-1:
-                j[position] = i[0]
-            else:
-                j[position] = i[(position - 1)] + i[(position)]
-            position += 1
-            
-        i = j
-        row = j
-        
+    def nextRow(prev_row):
+        """
+        """
+        next_row = [0]*(len(prev_row)+1)
+        for j in range(0,len(next_row)):
+            if j == 0 or j == len(prev_row):
+                next_row[j] = prev_row[0]
+            else: 
+                next_row[j] = prev_row[j-1] + prev_row[j]
+        return next_row
+
+    row = [1]
+
+    for i in range(0,k):
+        row = nextRow(row)
+
     return row
 
 for k in range(1, 11):
