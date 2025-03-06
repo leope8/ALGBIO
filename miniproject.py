@@ -145,7 +145,15 @@ for k in range(1, 11):
 def greedy_value(l_weights, l_values, max_weight):
     """
     """
-    pass
+    knapsack = [0]*len(l_weights)
+    weight, value = np.array(l_weights), np.array(l_values)
+    sortval = sorted(list(enumerate(value/weight)), key=lambda x: x[1], reverse=True)
+    for item in sortval:
+        if weight[item[0]] <= max_weight:
+            max_weight -= weight[item[0]]
+            knapsack[item[0]] = 1
+        else:
+            return sum(value*knapsack)
 
 l_weights = [4, 4, 5]
 l_values  = [10, 11, 15]
