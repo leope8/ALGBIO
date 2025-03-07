@@ -47,38 +47,54 @@ import numpy as np
 
 def lcs_matrix(s, t):
     """
+    Compute the dynamic programming matrix for the longest common subsequence (LCS) of two strings.
+
+    Parameters:
+    s (str): The first string.
+    t (str): The second string.
+
+    Returns:
+    numpy.ndarray: A matrix where the entry at (i, j) contains the length of the LCS of s[:j] and t[:i].
     """
     matrix = np.zeros((len(t) + 1, len(s)+1))
 
     for fil in range(1, len(t)+1):
         for col in range(1, len(s)+1):
-            if t[fil - 1] != s[col - 1]:
-                if matrix[fil-1,col] > matrix[fil,col - 1]:
-                    matrix[fil, col] = matrix[fil-1,col]
+            if t[fil - 1] != s[col - 1]: # if the characters are different, the value is the maximum of the previous values
+                if matrix[fil-1,col] > matrix[fil,col - 1]: # the previous row is greater than the previous column
+                    matrix[fil, col] = matrix[fil-1,col] # so we take the previous row
                 else:
-                    matrix[fil, col] = matrix[fil,col-1]
-            else:
-                matrix[fil,col]=matrix[fil-1, col-1] + 1
+                    matrix[fil, col] = matrix[fil,col-1] # otherwise we take the previous column
+            else: # if the characters are the same, we add 1 to the diagonal
+                matrix[fil,col]=matrix[fil-1, col-1] + 1 
     return matrix
 
 
 def lcs(s, t):
     """
+    Find a longest common subsequence (LCS) of two strings using the dynamic programming matrix.
+
+    Parameters:
+    s (str): The first string.
+    t (str): The second string.
+
+    Returns:
+    str: A longest common subsequence of s and t.
     """
-    matrix = lcs_matrix(s, t)
+    matrix = lcs_matrix(s, t) # we compute the matrix
     fil = len(t)
     col = len(s)
     lcstring = ""
-    while col >= 0 and fil >= 0:
-        if matrix[fil,col] == matrix[fil-1, col]:
+    while col >= 0 and fil >= 0: # we iterate until we reach the first row or column
+        if matrix[fil,col] == matrix[fil-1, col]: # if the value is the same as the previous row, we move up
             fil -= 1
-        elif matrix[fil,col] == matrix[fil, col-1]:
+        elif matrix[fil,col] == matrix[fil, col-1]: # if the value is the same as the previous column, we move left
             col -= 1
-        else:
+        else: # if the value is different, we add the character to the string and move diagonally
             lcstring += s[col-1]
             fil -= 1
             col -= 1
-    return lcstring[::-1]
+    return lcstring[::-1] # we return the string in reverse order
 
 
 for s, t in zip(['bananas', 'biscuit', 'confidential'], ['bahamas', 'suitcase', 'trascendental']):
@@ -109,26 +125,40 @@ for s, t in zip(['bananas', 'biscuit', 'confidential'], ['bahamas', 'suitcase', 
 # %%
 def pascal_row(k):
     """
+    Generate the k-th row of Pascal's triangle.
+
+    Parameters:
+    k (int): The row index (0-based) of Pascal's triangle to generate.
+
+    Returns:
+    list: The k-th row of Pascal's triangle.
     """
     def nextRow(prev_row):
         """
+        Generate the next row in Pascal's triangle given the previous row.
+
+        Parameters:
+        prev_row (list): The previous row of Pascal's triangle.
+
+        Returns:
+        list: The next row of Pascal's triangle.
         """
-        next_row = [0]*(len(prev_row)+1)
+        next_row = [0]*(len(prev_row)+1) # the length of the next row is that of the prevoius row + 1
         for j in range(0,len(next_row)):
-            if j == 0 or j == len(prev_row):
+            if j == 0 or j == len(prev_row): # the first and last elements of the row are always 1
                 next_row[j] = prev_row[0]
             else: 
-                next_row[j] = prev_row[j-1] + prev_row[j]
+                next_row[j] = prev_row[j-1] + prev_row[j] # the other elements are the sum of the two elements above them
         return next_row
 
     row = [1]
 
-    for i in range(0,k):
-        row = nextRow(row)
+    for i in range(0,k): # generate the k-th row by iterating k times
+        row = nextRow(row) 
 
     return row
 
-for k in range(1, 11):
+for k in range(0, 11):
     tr = pascal_row(k)
     print(tr)
 
