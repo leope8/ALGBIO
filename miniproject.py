@@ -172,25 +172,49 @@ for k in range(0, 11):
 # Write a function `greedy_value(l_weights, l_values, max_weight)` that returns the value of the maximal loot made up of elements with weights in `l_weights` and values in `l_values` that can be carried away in a knapsack which can hold at most a weight `max_weight`. 
 
 # %%
+import numpy as np
+
 def greedy_value(l_weights, l_values, max_weight):
     """
+    Solves the 0-1 Knapsack problem with a greedy algorithm.
+
+    Input:
+    l_weights (list): List of weights of the items
+    l_values (list):  List of values of the items
+    max_weight (int): Maximum weight capacity of the knapsack
+
+    Output: Int: Total value of the items in the knapsack
+
+    The greedy algorithm could be described as follows:
+    1. Sort the items by value/weight ratio
+    2. If the item fits, add them to the knapsack
+    3. If the item doesn't fit, return the total value of the items already in the knapsack
     """
-    knapsack = [0]*len(l_weights)
-    weight, value = np.array(l_weights), np.array(l_values)
-    sortval = sorted(list(enumerate(value/weight)), key=lambda x: x[1], reverse=True)
-    for item in sortval:
-        if weight[item[0]] <= max_weight:
-            max_weight -= weight[item[0]]
-            knapsack[item[0]] = 1
-        else:
-            return sum(value*knapsack)
+ 
+    assert all(isinstance(i, int) for i in l_weights) and all(isinstance(i, int) for i in l_values) and isinstance(max_weight, int), "The weights, values and maximum weight must be integers"
+    assert len(l_weights) == len(l_values), "The lists of weights and values must have the same length"
+
+    knapsack = [0] * len(l_weights)                                                     #We will store the items in the knapsack in a binary list, 1 if in it, 0 if not
+    weight, value = np.array(l_weights), np.array(l_values)                             #We convert the lists to numpy arrays to work with them
+    sortval = sorted(list(enumerate(value/weight)), key=lambda x: x[1], reverse=True)   #We sort the items by value/weight ratio, using ennumerate to keep track of the original index
+    
+    for item in sortval:                    #We iterate over the items sorted by value/weight ratio
+
+        if weight[item[0]] <= max_weight:   #If the item fits in the knapsack
+            max_weight -= weight[item[0]]   #We substract the weight of the item from the maximum weight
+            knapsack[item[0]] = 1           #We add the item to the knapsack
+
+        else:                               #If the item doesn't fit in the knapsack
+            return sum(value*knapsack)      #We return the total value of the items in the knapsack
+
+
 
 l_weights = [4, 4, 5]
 l_values  = [10, 11, 15]
 max_weight = 8
 
-print(greedy_value(l_weights, l_values, max_weight))
 
+print(greedy_value(l_weights, l_values, max_weight))
 # %% [markdown]
 # ## Question 4: Dynamic Programming to Solve the 0-1 Knapsack Problem
 # 
@@ -202,26 +226,59 @@ print(greedy_value(l_weights, l_values, max_weight))
 # Then, write in the next cell a Python function `optimal_value(l_weights, l_values, max_weight)` that returns the value of the maximal loot made up of elements with weights in `l_weights` and values in `l_values` that can be carried away in a knapsack which can hold at most a weight `max_weight`. 
 
 # %%
+import numpy as np
+
 def optimal_value(l_weights, l_values, max_weight):
     """
+    Solves the Knapsack problem with using dinamic programming.
+
+    Input:
+    l_weights (list): List of weights of the items
+    l_values (list): List of values of the items
+    max_weight (int): Maximum weight capacity of the knapsack
+
+    Output: Int: Total value of the items in the knapsack
+
+    We use a modified version of the coin exchange algorithm.
+    Instead of: n(i,c) = min( n(i-1, c), 1    + n(i,   c-vi))
+        Select the minimum number of coins between
+        the optimal number of coins without the coin we are adding
+        and the optimal number of coins with the coin we are adding
+
+    We use:     t(i,w) = max( t(i-1, w), vi + t(i-1, w-wi))
+        Select the maximum value between
+        the optimal value without the object we are adding
+        and the optimal value with the object we are adding
+
+    The main changes are that we don't minimize the number of coins, but maximize the value
+    And that we don't use 1 + n(i, c-vi), but vi + t(i-1, w-wi)
+    Instead of adding a coin (1) to the optimal number of coins with spare change to add our coin n(c-vi)
+    we add the value of the object (vi) to the optimal value we had before adding the object and with space to add it t(i-1, w-wi)
     """
+    
+    assert all(isinstance(i, int) for i in l_weights) and all(isinstance(i, int) for i in l_values) and isinstance(max_weight, int), "The weights, values and maximum weight must be integers"
+    assert len(l_weights) == len(l_values), "The lists of weights and values must have the same length"
+
     n = len(l_weights)
     
-    table = np.array([[0] * (max_weight + 1)] * (n + 1))
-    for weight in range(1, max_weight + 1):
-        for item in range (1, n + 1):
-            if l_weights[item - 1] <= weight:
-                table[item][weight] = max(l_values[item - 1] + table[item - 1][weight - l_weights[item - 1]] , table[item - 1][weight])
+    table = np.array([[0] * (max_weight + 1)] * (n + 1)) #We create a table filled with 0, we'll consider the first row as "No item" and the first column as "No weight"
+
+    for weight in range(1, max_weight + 1):              #We start iterating in weight=1 because the value of max_weight=0 is always 0
+        for item in range (1, n + 1):                    #We start iterating in item=1 because the value of adding no item is always 0
+
+            if l_weights[item - 1] <= weight:            #If the item fits in the space left in the knapsack
+                table[item][weight] = max(l_values[item - 1] + table[item - 1][weight - l_weights[item - 1]] , table[item - 1][weight]) #We apply the algorithm described
                 
-            else:
-                table[item][weight] = table[item-1][weight]
+            else:                                           #If the item doesn't fit
+                table[item][weight] = table[item-1][weight] #We just copy the value of the previous item
                 
     return table[n][max_weight]
+
+
 
 l_weights = [4, 4, 5]
 l_values  = [10, 11, 15]
 max_weight = 8
 
 print(optimal_value(l_weights, l_values, max_weight))
-
 
