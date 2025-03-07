@@ -175,7 +175,18 @@ print(greedy_value(l_weights, l_values, max_weight))
 def optimal_value(l_weights, l_values, max_weight):
     """
     """
-    pass
+    n = len(l_weights)
+    
+    table = np.array([[0] * (max_weight + 1)] * (n + 1))
+    for weight in range(1, max_weight + 1):
+        for item in range (1, n + 1):
+            if l_weights[item - 1] <= weight:
+                table[item][weight] = max(l_values[item - 1] + table[item - 1][weight - l_weights[item - 1]] , table[item - 1][weight])
+                
+            else:
+                table[item][weight] = table[item-1][weight]
+                
+    return table[n][max_weight]
 
 l_weights = [4, 4, 5]
 l_values  = [10, 11, 15]
