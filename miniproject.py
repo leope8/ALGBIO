@@ -179,9 +179,9 @@ def greedy_value(l_weights, l_values, max_weight):
     Solves the 0-1 Knapsack problem with a greedy algorithm.
 
     Input:
-    l_weights (list): List of weights of the items
-    l_values (list):  List of values of the items
-    max_weight (int): Maximum weight capacity of the knapsack
+    l_weights (list[numbers]): List of weights of the items
+    l_values (list[numbers]):  List of values of the items
+    max_weight (number (int/float)): Maximum weight capacity of the knapsack
 
     Output: Int: Total value of the items in the knapsack
 
@@ -191,9 +191,9 @@ def greedy_value(l_weights, l_values, max_weight):
     3. If the item doesn't fit, return the total value of the items already in the knapsack
     """
  
-    assert all(isinstance(i, int) for i in l_weights) and all(isinstance(i, int) for i in l_values) and isinstance(max_weight, int), "The weights, values and maximum weight must be integers"
+    assert all(isinstance(i, (int, float)) for i in l_weights+l_values+[max_weight]), "weights, values and maximum weight must be numbers"
     assert len(l_weights) == len(l_values), "The lists of weights and values must have the same length"
-
+    
     knapsack = [0] * len(l_weights)                                                     #We will store the items in the knapsack in a binary list, 1 if in it, 0 if not
     weight, value = np.array(l_weights), np.array(l_values)                             #We convert the lists to numpy arrays to work with them
     sortval = sorted(list(enumerate(value/weight)), key=lambda x: x[1], reverse=True)   #We sort the items by value/weight ratio, using ennumerate to keep track of the original index
@@ -233,9 +233,9 @@ def optimal_value(l_weights, l_values, max_weight):
     Solves the Knapsack problem with using dinamic programming.
 
     Input:
-    l_weights (list): List of weights of the items
-    l_values (list): List of values of the items
-    max_weight (int): Maximum weight capacity of the knapsack
+    l_weights (list[numbers]): List of weights of the items
+    l_values (list[numbers]):  List of values of the items
+    max_weight (number (int/float)): Maximum weight capacity of the knapsack
 
     Output: Int: Total value of the items in the knapsack
 
@@ -256,7 +256,7 @@ def optimal_value(l_weights, l_values, max_weight):
     we add the value of the object (vi) to the optimal value we had before adding the object and with space to add it t(i-1, w-wi)
     """
     
-    assert all(isinstance(i, int) for i in l_weights) and all(isinstance(i, int) for i in l_values) and isinstance(max_weight, int), "The weights, values and maximum weight must be integers"
+    assert all(isinstance(i, (int, float)) for i in l_weights+l_values+[max_weight]), "weights, values and maximum weight must be numbers"
     assert len(l_weights) == len(l_values), "The lists of weights and values must have the same length"
 
     n = len(l_weights)
